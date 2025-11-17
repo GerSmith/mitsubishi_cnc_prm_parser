@@ -36,12 +36,26 @@ def main():
     # Загрузка справочника
     descriptions_path = args.descriptions or Path("descriptions.yaml")
     descriptions = {}
-    if descriptions_path.exists() or args.descriptions is not None:
-        try:
-            descriptions = load_descriptions(descriptions_path)
-        except ValueError as e:
-            print(f"❌ {e}", file=sys.stderr)
-            sys.exit(1)
+    if args.descriptions is not None:
+        # Пользователь явно указал путь — сообщаем, если файл не найден
+        if not descriptions_path.exists():
+            print(
+                f"ℹ️  Файл справочника не найден: {descriptions_path}. Экспорт выполняется без описаний."
+            )
+        else:
+            try:
+                descriptions = load_descriptions(descriptions_path)
+            except ValueError as e:
+                print(f"❌ {e}", file=sys.stderr)
+                sys.exit(1)
+    else:
+        # Используем descriptions.yaml по умолчанию — молча, если его нет
+        if descriptions_path.exists():
+            try:
+                descriptions = load_descriptions(descriptions_path)
+            except ValueError as e:
+                print(f"❌ {e}", file=sys.stderr)
+                sys.exit(1)
 
     # Парсинг
     try:
